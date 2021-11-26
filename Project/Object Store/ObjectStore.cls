@@ -43,37 +43,35 @@ End Property
 
 
 Public Function AllocateHandle(Optional ByVal Handle As String = vbNullString _
-                              ) As String
-    Dim HandleCandidate As String
-    HandleCandidate = Handle
-    If Len(HandleCandidate) > 0 Then
-        If Not this.Store.Exists(HandleCandidate) Then
-            this.Store(HandleCandidate) = Empty
+                              ) As Currency
+    Dim IDCandidate As Currency
+    If Len(Handle) > 0 Then
+        If Not this.Store.Exists(Handle) Then
+            this.Store(Handle) = Empty
+            IDCandidate = -1
         Else
-            HandleCandidate = vbNullString
+            IDCandidate = 0
         End If
     Else
-        Dim IDCandidate As Double
-        IDCandidate = GenerateSerialID()
-        Do While this.Store.Exists(CStr(IDCandidate))
+        IDCandidate = CCur(GenerateSerialID() / 10000)
+        Do While this.Store.Exists(IDCandidate)
             IDCandidate = IDCandidate + 1
         Loop
-        HandleCandidate = CStr(IDCandidate)
-        this.Store(HandleCandidate) = Empty
+        this.Store(IDCandidate) = Empty
     End If
-    AllocateHandle = HandleCandidate
+    AllocateHandle = IDCandidate
 End Function
 
 
-Public Sub FreeHandle(ByVal Handle As String)
-    this.Store.Remove Handle
+Public Sub FreeHandle(ByVal Handle As Variant)
+    If this.Store.Exists(Handle) Then this.Store.Remove Handle
 End Sub
 
 
-Public Function RefSet(ByVal Handle As String, ByVal ObjRef As Object) As String
+Public Function RefSet(ByVal Handle As Variant, ByVal ObjRef As Object) As Variant
     If Not this.Store.Exists(Handle) Then
         RefSet = vbNullString
-    ElseIf Not IsEmpty(this.Store.Exists(Handle)) Then
+    ElseIf Not IsEmpty(this.Store(Handle)) Then
         RefSet = vbNullString
     Else
         Set this.Store(Handle) = ObjRef
@@ -82,7 +80,7 @@ Public Function RefSet(ByVal Handle As String, ByVal ObjRef As Object) As String
 End Function
 
 
-Public Function RefGet(ByVal Handle As String) As Object
+Public Function RefGet(ByVal Handle As Variant) As Object
     If Not this.Store.Exists(Handle) Then
         Set RefGet = Nothing
     ElseIf IsEmpty(this.Store.Exists(Handle)) Then
