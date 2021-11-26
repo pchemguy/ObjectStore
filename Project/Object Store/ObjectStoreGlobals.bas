@@ -9,3 +9,11 @@ Option Explicit
 '@Ignore EncapsulatePublicField: Alternative to predeclared attribute
 Public ObjectStore As New ObjectStore
 
+Public Enum ReferenceLoopManagementModeEnum
+    REF_LOOP_NO_MANAGEMENT = 0&
+    REF_LOOP_CLEANUP_CASCADE = 1&
+    REF_LOOP_OBJECT_STORE = 2&
+End Enum
+
+Public ReferenceLoopManagementMode As ReferenceLoopManagementModeEnum
+

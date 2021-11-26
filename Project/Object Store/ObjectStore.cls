@@ -25,12 +25,14 @@ Private this As TObjectStore
 
 
 Private Sub Class_Initialize()
+    Debug.Print GetTimeStampMs & ": ObjectStore - Class_Initialize"
     Set this.Store = New Scripting.Dictionary
     this.Store.CompareMode = TextCompare
 End Sub
 
 
 Private Sub Class_Terminate()
+    Debug.Print GetTimeStampMs & ": ObjectStore - Class_Terminate"
     this.Store.RemoveAll
     Set this.Store = Nothing
 End Sub
