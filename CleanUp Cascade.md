@@ -51,7 +51,7 @@ End Sub
 
 ```vb
 Friend Sub CleanUp()
-    this.DbConn = Empty
+    Set this.DbConn = Nothing
 End Sub
 ```
 
