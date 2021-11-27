@@ -11,7 +11,7 @@ The other alternative prevents the formation of circular references by introduci
 <div align="center"><img src="https://raw.githubusercontent.com/pchemguy/ObjectStore/develop/Assets/Diagrams/CircularReferenceResolved.svg" alt="Circular References Resolved" width="75%" /></div>
 <p align="center"><b>Fig. 1. Simplified database library class diagram with ObjectStore</b></p>  
 
-The important part is how ObjectStore is accessed. Accessing an ObjectStore instance via a regular reference would result in a three-node loop. Instead, a public ObjectStore variable, such as the predeclared instance, should be used. At the same time, the ObjectStore collection should be destroyed during termination to free the stored objects. The simplest way to achieve this goal is to destroy the ObjectStore variable itself. Unfortunately, an attempt to set a predeclared instance variable to Nothing crashes the application. On the other hand, the similarly behaving auto-assigned variables can be destroyed by setting them to Nothing. Thus, a public auto-assigned variable ObjectStore named after the class is declared in the *ObjectStoreGlobals* regular module located in the same folder, mimicking predeclared instances.
+The important part is how ObjectStore is accessed. Accessing an ObjectStore instance via a regular reference would result in a three-node loop. Instead, a public ObjectStore variable, such as the predeclared instance, should be used. At the same time, the ObjectStore collection should be destroyed during termination to free the stored objects. The simplest way to achieve this goal is to destroy the ObjectStore variable itself. Unfortunately, setting the predeclared instance variable to Nothing is not supported and would crash the application. On the other hand, the similarly behaving auto-assigned variables can be destroyed by setting them to Nothing. Thus, a public auto-assigned variable ObjectStore named after the class (mimicking predeclared instances) is declared in the _ObjectStoreGlobals_ regular module located in the same folder.
 
 The child object in a circular reference relationship often takes its parent reference via the factory and saves it via the constructor, for example:
 
@@ -60,6 +60,7 @@ Friend Sub Init(ByVal DbConn As DbConnection, ByVal DbStmtID As String)
                       "Failed to save object refererence"
         End If
     End If
+    this.DbConn = DbConnHandle
 End Sub
 ```
 
