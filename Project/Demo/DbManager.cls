@@ -39,20 +39,20 @@ Private Sub Class_Initialize()
     this.DefaultInstance = True
     Dim InstanceType As String
     InstanceType = IIf(Me Is DbManager, "Default", "Regular")
-    Debug.Print EpochToString(this.TimeStamp) & ": DbManager/" & _
+    Debug.Print EpochToString(this.TimeStamp) & ": DbManager   /" & _
                 InstanceType & " - Class_Initialize"
 End Sub
 
 Private Sub Class_Terminate()
-    Dim InstanceType As String
-    InstanceType = IIf(this.DefaultInstance, "Default", "Regular")
-    Debug.Print GetTimeStampMs & ": DbManager/" & _
-                InstanceType & " - Class_Terminate"
     If ObjectStoreGlobals.ReferenceLoopManagementMode = REF_LOOP_CLEANUP_CASCADE Then
         CleanUp
     ElseIf ObjectStoreGlobals.ReferenceLoopManagementMode = REF_LOOP_OBJECT_STORE Then
         Set ObjectStore = Nothing
     End If
+    Dim InstanceType As String
+    InstanceType = IIf(this.DefaultInstance, "Default", "Regular")
+    Debug.Print GetTimeStampMs & ": DbManager   /" & _
+                InstanceType & " - Class_Terminate"
 End Sub
 
 Friend Sub CleanUp()

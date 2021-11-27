@@ -39,6 +39,8 @@ Friend Sub Init(ByVal DbConn As DbConnection, ByVal DbStmtID As String)
         '''' Using parent object handle
         Dim DbConnHandle As String
         DbConnHandle = "CONNECTION:" & DbConn.DbConnStr
+        '''' Assume that handles are created in a way that uniquely identify
+        '''' objects, meaning if the handle already exists, it can be used.
         If ObjectStore.AllocateHandle(DbConnHandle) = -1 Then
             If ObjectStore.RefSet(DbConnHandle, DbConn) <> DbConnHandle Then
                 Err.Raise 17, "DbStatement/Constructor", _
@@ -58,14 +60,14 @@ Private Sub Class_Initialize()
     this.DefaultInstance = True
     Dim InstanceType As String
     InstanceType = IIf(Me Is DbStatement, "Default", "Regular")
-    Debug.Print EpochToString(this.TimeStamp) & ": DbStatement/" & _
+    Debug.Print EpochToString(this.TimeStamp) & ": DbStatement /" & _
                 InstanceType & " - Class_Initialize"
 End Sub
 
 Private Sub Class_Terminate()
     Dim InstanceType As String
     InstanceType = IIf(this.DefaultInstance, "Default", "Regular")
-    Debug.Print GetTimeStampMs & ": DbStatement/" & _
+    Debug.Print GetTimeStampMs & ": DbStatement /" & _
                 InstanceType & " - Class_Terminate"
 End Sub
 
