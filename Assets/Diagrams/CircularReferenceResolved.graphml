@@ -102,11 +102,11 @@
       <data key="d4"/>
       <data key="d6">
         <y:UMLNoteNode>
-          <y:Geometry height="46.78540305010894" width="75.0" x="2073.247830452068" y="123.5469560492082"/>
+          <y:Geometry height="46.78540305010894" width="83.0" x="2065.247830452068" y="123.5469560492082"/>
           <y:Fill hasColor="false" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="DejaVu Sans Mono" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="48.103515625" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="c" textColor="#404040" verticalTextPosition="bottom" visible="true" width="74.705078125" x="0.1474609375" y="-0.6590562874455301">Public
-self-assigned
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="DejaVu Sans Mono" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="48.103515625" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="c" textColor="#404040" verticalTextPosition="bottom" visible="true" width="79.38671875" x="1.806640625" y="-0.6590562874455372">Public
+auto-assigned
 instance</y:NodeLabel>
         </y:UMLNoteNode>
       </data>
@@ -224,7 +224,7 @@ Collection<y:LabelModel>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
           <y:LineStyle color="#808080" type="dashed" width="1.0"/>
           <y:Arrows source="none" target="none"/>
-          <y:EdgeLabel alignment="center" configuration="AutoFlippingLabel" distance="2.0" fontFamily="DejaVu Sans Mono" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" verticalTextPosition="bottom" visible="true" width="7.333984375" x="-2.455130989358622" y="-43.6815505704169"> <y:LabelModel>
+          <y:EdgeLabel alignment="center" configuration="AutoFlippingLabel" distance="2.0" fontFamily="DejaVu Sans Mono" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" verticalTextPosition="bottom" visible="true" width="7.333984375" x="-2.9963527289792182" y="-43.61941347752088"> <y:LabelModel>
               <y:SmartEdgeLabelModel autoRotationEnabled="false" defaultAngle="0.0" defaultDistance="10.0"/>
             </y:LabelModel>
             <y:ModelParameter>
