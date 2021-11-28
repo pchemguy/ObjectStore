@@ -18,4 +18,8 @@ Private Sub Main()
     DbStmtID = "SomeStatementID"
     Dim dbs As DbStatement
     Set dbs = dbc.CreateStatement(DbStmtID)
+    
+    Set dbm = Nothing
+    Set dbs = Nothing
+    Set dbc = Nothing
 End Sub

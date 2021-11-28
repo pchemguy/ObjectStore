@@ -15,6 +15,7 @@ Option Explicit
 
 Private Type TDbManager
     Connections As Scripting.Dictionary '''' Children collection
+    InstanceCount As Long    '''' Number of DbManager objects; only use on the default instance
     TimeStamp As Double
     DefaultInstance As Boolean
 End Type
@@ -36,6 +37,11 @@ Friend Sub Init()
 End Sub
 
 Private Sub Class_Initialize()
+    If Me Is DbManager Then
+        this.InstanceCount = 0
+    Else
+        DbManager.InstanceAdd
+    End If
     this.DefaultInstance = True
     Dim InstanceType As String
     InstanceType = IIf(Me Is DbManager, "Default", "Regular")
@@ -46,9 +52,8 @@ End Sub
 Private Sub Class_Terminate()
     If ObjectStoreGlobals.ReferenceLoopManagementMode = REF_LOOP_CLEANUP_CASCADE Then
         CleanUp
-    ElseIf ObjectStoreGlobals.ReferenceLoopManagementMode = REF_LOOP_OBJECT_STORE Then
-        Set ObjectStore = Nothing
     End If
+    DbManager.InstanceDel
     Dim InstanceType As String
     InstanceType = IIf(this.DefaultInstance, "Default", "Regular")
     Debug.Print GetTimeStampMs & ": DbManager   /" & _
@@ -65,6 +70,44 @@ Friend Sub CleanUp()
     Set DbConn = Nothing
     this.Connections.RemoveAll
     Set this.Connections = Nothing
+End Sub
+
+Public Property Get InstanceCount() As Long
+    If Me Is DbManager Then
+        InstanceCount = this.InstanceCount
+    Else
+        InstanceCount = DbManager.InstanceCount
+    End If
+End Property
+
+Public Property Let InstanceCount(ByVal Value As Long)
+    If Me Is DbManager Then
+        this.InstanceCount = Value
+    Else
+        DbManager.InstanceCount = Value
+    End If
+End Property
+
+Public Sub InstanceAdd()
+    If Me Is DbManager Then
+        this.InstanceCount = this.InstanceCount + 1
+    Else
+        DbManager.InstanceCount = DbManager.InstanceCount + 1
+    End If
+End Sub
+
+Public Sub InstanceDel()
+    If Me Is DbManager Then
+        this.InstanceCount = this.InstanceCount - 1
+        If this.InstanceCount = 0 Then
+            If ObjectStoreGlobals.ReferenceLoopManagementMode = _
+               REF_LOOP_OBJECT_STORE Then
+                Set ObjectStore = Nothing
+            End If
+        End If
+    Else
+        DbManager.InstanceCount = DbManager.InstanceCount - 1
+    End If
 End Sub
 
 Public Function CreateConnection(ByVal DbConnStr As String) As DbConnection
