@@ -15,7 +15,7 @@ Option Explicit
 
 Private Type TDbStatement
     '''' Parent reference. For the purpose of this demo, parent reference is
-    '''' defined as variant. Normally, it should be defined as a specific type.
+    '''' defined as variant. Normally, it should be defined as object or pointer.
     DbConn As Variant
     DbStmtID As String
     TimeStamp As Double
