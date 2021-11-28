@@ -11,11 +11,6 @@ Attribute VB_Description = "Manages object references using scalar handles."
 '@Folder "Object Store"
 '@ModuleDescription "Manages object references using scalar handles."
 '@IgnoreModule IndexedDefaultMemberAccess
-''''
-'''' This classes uses self-assigned declaration as an alternative to setting
-'''' the predeclared attribute, making it possible to destroy it. Presently,
-'''' this class is also used as singleton.
-''''
 Option Explicit
 
 Private Type TObjectStore
@@ -41,47 +36,36 @@ Friend Property Get Store() As Scripting.Dictionary
     Set Store = this.Store
 End Property
 
-Public Function AllocateHandle(Optional ByVal Handle As String = vbNullString _
-                              ) As Currency
-    Dim IDCandidate As Currency
-    If Len(Handle) > 0 Then
-        If Not this.Store.Exists(Handle) Then
-            this.Store(Handle) = Empty
-            IDCandidate = -1
-        Else
-            IDCandidate = 0
-        End If
-    Else
-        IDCandidate = CCur(GenerateSerialID() / 10000)
-        Do While this.Store.Exists(IDCandidate)
-            IDCandidate = IDCandidate + 1
-        Loop
-        this.Store(IDCandidate) = Empty
-    End If
-    AllocateHandle = IDCandidate
-End Function
-
-Public Sub FreeHandle(ByVal Handle As Variant)
+#If VBA7 Then
+Public Sub DelRef(ByVal Handle As LongPtr)
+#Else
+Public Sub DelRef(ByVal Handle As Long)
+#End If
     If this.Store.Exists(Handle) Then this.Store.Remove Handle
 End Sub
 
-Public Function RefSet(ByVal Handle As Variant, ByVal ObjRef As Object) As Variant
+#If VBA7 Then
+Public Function SetRef(ByVal ObjRef As Object) As LongPtr
+    Dim Handle As LongPtr
+#Else
+Public Function SetRef(ByVal ObjRef As Object) As Long
+    Dim Handle As Long
+#End If
+    Handle = ObjPtr(ObjRef)
     If Not this.Store.Exists(Handle) Then
-        RefSet = vbNullString
-    ElseIf Not IsEmpty(this.Store(Handle)) Then
-        RefSet = vbNullString
-    Else
         Set this.Store(Handle) = ObjRef
-        RefSet = Handle
     End If
+    SetRef = Handle
 End Function
 
-Public Function RefGet(ByVal Handle As Variant) As Object
-    If Not this.Store.Exists(Handle) Then
-        Set RefGet = Nothing
-    ElseIf IsEmpty(this.Store.Exists(Handle)) Then
-        Set RefGet = Nothing
+#If VBA7 Then
+Public Function GetRef(ByVal Handle As LongPtr) As Object
+#Else
+Public Function GetRef(ByVal Handle As Long) As Object
+#End If
+    If this.Store.Exists(Handle) Then
+        Set GetRef = this.Store(Handle)
     Else
-        Set RefGet = this.Store(Handle)
+        Set GetRef = Nothing
     End If
 End Function

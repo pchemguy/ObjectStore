@@ -37,17 +37,7 @@ Friend Sub Init(ByVal DbConn As DbConnection, ByVal DbStmtID As String)
     '''' branch based on selected approach.
     If ObjectStoreGlobals.ReferenceLoopManagementMode = REF_LOOP_OBJECT_STORE Then
         '''' Using parent object handle
-        Dim DbConnHandle As String
-        DbConnHandle = "CONNECTION:" & DbConn.DbConnStr
-        '''' Assume that handles are created in a way that uniquely identify
-        '''' objects, meaning if the handle already exists, it can be used.
-        If ObjectStore.AllocateHandle(DbConnHandle) = -1 Then
-            If ObjectStore.RefSet(DbConnHandle, DbConn) <> DbConnHandle Then
-                Err.Raise 17, "DbStatement/Constructor", _
-                          "Failed to save object refererence"
-            End If
-        End If
-        this.DbConn = DbConnHandle
+        this.DbConn = ObjectStore.SetRef(DbConn)
     Else
         '''' Using parent object reference
         Set this.DbConn = DbConn
@@ -81,7 +71,7 @@ Public Property Get DbConn() As DbConnection
     '''' branch based on selected approach.
     If ObjectStoreGlobals.ReferenceLoopManagementMode = REF_LOOP_OBJECT_STORE Then
         '''' Using parent object handle
-        Set DbConn = ObjectStore.RefGet(this.DbConn)
+        Set DbConn = ObjectStore.GetRef(this.DbConn)
     Else
         '''' Using parent object reference
         Set DbConn = this.DbConn

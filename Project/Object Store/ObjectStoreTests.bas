@@ -72,114 +72,33 @@ End Sub
 
 
 '@TestMethod("Handles")
-Private Sub ztcAllocateHandle_VerifyAllocateHandle()
+Private Sub ztcRefXeX_VerifyRefXeX()
     On Error GoTo TestFail
     
 Arrange:
     Set ObjectStore = Nothing
+    #If VBA7 Then
+        Dim Handle As LongPtr
+    #Else
+        Dim Handle As Long
+    #End If
 Act:
-    Dim Result As Currency
 Assert:
-    Result = ObjectStore.AllocateHandle("ABC")
-    Assert.AreEqual 1, ObjectStore.Store.Count, "Store count mismatch."
-    Assert.AreEqual -1, Result, "Result mismatch with new custom handle."
-    Assert.IsTrue ObjectStore.Store.Exists("ABC"), "Handle should be in the Store."
-    Assert.IsTrue IsEmpty(ObjectStore.Store("ABC")), "Element should be empty."
-    
-    Result = ObjectStore.AllocateHandle("ABC")
-    Assert.AreEqual 1, ObjectStore.Store.Count, "Store count mismatch."
-    Assert.AreEqual 0, Result, "Result mismatch with existing handle."
-
-    Result = ObjectStore.AllocateHandle(vbNullString)
-    Assert.AreEqual 2, ObjectStore.Store.Count, "Store count mismatch with new auto handle."
-    Assert.IsTrue Result > 0, "Result mismatch with new auto handle."
-
-CleanExit:
-    Exit Sub
-TestFail:
-    Assert.Fail "Error: " & Err.Number & " - " & Err.Description
-End Sub
-
-
-'@TestMethod("Handles")
-Private Sub ztcFreeHandle_VerifyFreeHandle()
-    On Error GoTo TestFail
-    
-Arrange:
-    Dim RefTimeStamp As Double
-    RefTimeStamp = CDbl(DateDiff("s", DateSerial(1970, 1, 1), Date)) + Timer
-    Set ObjectStore = Nothing
-Act:
-    Dim Result As Currency
-Assert:
-    Result = ObjectStore.AllocateHandle(vbNullString)
-    Assert.AreEqual 1, ObjectStore.Store.Count, "Store count mismatch."
-    Assert.IsTrue Result >= RefTimeStamp, "Result mismatch with new auto handle."
-    Result = ObjectStore.AllocateHandle(vbNullString)
-    Assert.AreEqual 2, ObjectStore.Store.Count, "Store count mismatch."
-    ObjectStore.FreeHandle vbNullString
-    Assert.AreEqual 2, ObjectStore.Store.Count, "Store count mismatch."
-    ObjectStore.FreeHandle Result
-    Assert.AreEqual 1, ObjectStore.Store.Count, "Store count mismatch."
-    Result = ObjectStore.AllocateHandle("ABC")
-    Assert.AreEqual 2, ObjectStore.Store.Count, "Store count mismatch."
-    Assert.AreEqual -1, Result, "Result mismatch with new custom handle."
-    ObjectStore.FreeHandle "ABC"
-    Assert.AreEqual 1, ObjectStore.Store.Count, "Store count mismatch."
-    Dim Store As Scripting.Dictionary
-    Set Store = ObjectStore.Store
-    Set ObjectStore = Nothing
-    Assert.AreEqual 0, Store.Count, "Store count mismatch."
-    
-CleanExit:
-    Exit Sub
-TestFail:
-    Assert.Fail "Error: " & Err.Number & " - " & Err.Description
-End Sub
-
-
-'@TestMethod("References")
-Private Sub ztcRefSet_VerifyRefSet()
-    On Error GoTo TestFail
-    
-Arrange:
-    Set ObjectStore = Nothing
-Act:
-    Dim Result As Variant
-Assert:
-    Result = ObjectStore.RefSet("ABC", Application)
-    Assert.AreEqual vbNullString, Result, "Result mismatch with non-allocated key."
     Assert.AreEqual 0, ObjectStore.Store.Count, "Store count mismatch."
-    ObjectStore.Store("ABC") = "ABC"
-    Result = ObjectStore.RefSet("ABC", Application)
-    Assert.AreEqual vbNullString, Result, "Result mismatch with non-empty slot."
-    Assert.AreEqual "ABC", ObjectStore.Store("ABC"), "Existing value should not change."
+    Handle = ObjectStore.SetRef(Application)
+    Assert.AreEqual ObjPtr(Application), Handle, "SetRef - Object handle mismatch"
+    Handle = ObjectStore.SetRef(ThisWorkbook)
+    Assert.AreEqual ObjPtr(ThisWorkbook), Handle, "SetRef - Object handle mismatch"
+    Assert.AreEqual 2, ObjectStore.Store.Count, "Store count mismatch."
+    Dim AppObj As Excel.Application
+    Set AppObj = ObjectStore.GetRef(ObjPtr(Application))
+    Assert.IsTrue AppObj Is Application, "GetRef - Object mismatch"
+    Assert.IsTrue ObjectStore.GetRef(0) Is Nothing, "GetRef - Object mismatch"
+    ObjectStore.DelRef ObjPtr(Application)
     Assert.AreEqual 1, ObjectStore.Store.Count, "Store count mismatch."
-    ObjectStore.Store("ABC") = Empty
-    Result = ObjectStore.RefSet("ABC", Application)
-    Assert.IsTrue ObjectStore.Store("ABC") Is Application, "Reference is not saved."
-    Assert.AreEqual "ABC", Result, "Result mismatch."
-    
-CleanExit:
-    Exit Sub
-TestFail:
-    Assert.Fail "Error: " & Err.Number & " - " & Err.Description
-End Sub
-
-
-'@TestMethod("References")
-Private Sub ztcRefGet_VerifyRefGet()
-    On Error GoTo TestFail
-    
-Arrange:
-    Set ObjectStore = Nothing
-Act:
-    Dim Result As Variant
-Assert:
-    ObjectStore.Store("ABC") = Empty
-    Result = ObjectStore.RefSet("ABC", Application)
-    Assert.AreEqual "ABC", Result
-    Assert.IsTrue ObjectStore.RefGet("ABC") Is Application, "Reference is not saved."
+    Assert.IsTrue ObjectStore.GetRef(ObjPtr(ThisWorkbook)) Is ThisWorkbook, "GetRef - Object mismatch"
+    ObjectStore.DelRef ObjPtr(ThisWorkbook)
+    Assert.AreEqual 0, ObjectStore.Store.Count, "Store count mismatch."
     
 CleanExit:
     Exit Sub
