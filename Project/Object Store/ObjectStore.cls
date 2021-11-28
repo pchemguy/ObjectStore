@@ -30,19 +30,16 @@ Private Sub Class_Initialize()
     this.Store.CompareMode = TextCompare
 End Sub
 
-
 Private Sub Class_Terminate()
     Debug.Print GetTimeStampMs & ": ObjectStore - Class_Terminate"
     this.Store.RemoveAll
     Set this.Store = Nothing
 End Sub
 
-
 '''' For testing only
 Friend Property Get Store() As Scripting.Dictionary
     Set Store = this.Store
 End Property
-
 
 Public Function AllocateHandle(Optional ByVal Handle As String = vbNullString _
                               ) As Currency
@@ -64,11 +61,9 @@ Public Function AllocateHandle(Optional ByVal Handle As String = vbNullString _
     AllocateHandle = IDCandidate
 End Function
 
-
 Public Sub FreeHandle(ByVal Handle As Variant)
     If this.Store.Exists(Handle) Then this.Store.Remove Handle
 End Sub
-
 
 Public Function RefSet(ByVal Handle As Variant, ByVal ObjRef As Object) As Variant
     If Not this.Store.Exists(Handle) Then
@@ -80,7 +75,6 @@ Public Function RefSet(ByVal Handle As Variant, ByVal ObjRef As Object) As Varia
         RefSet = Handle
     End If
 End Function
-
 
 Public Function RefGet(ByVal Handle As Variant) As Object
     If Not this.Store.Exists(Handle) Then
