@@ -15,7 +15,8 @@ Option Explicit
 
 Private Type TDbManager
     Connections As Scripting.Dictionary '''' Children collection
-    InstanceCount As Long    '''' Number of DbManager objects; only use on the default instance
+    ''''@ClassAttribute
+    InstanceCount As Long               '''' Number of DbManager objects
     TimeStamp As Double
     DefaultInstance As Boolean
 End Type
@@ -72,6 +73,16 @@ Friend Sub CleanUp()
     Set this.Connections = Nothing
 End Sub
 
+Public Function CreateConnection(ByVal DbConnStr As String) As DbConnection
+    Dim DbConn As DbConnection
+    Set DbConn = DbConnection.Create(DbConnStr)
+    Set this.Connections(DbConnStr) = DbConn
+    Set CreateConnection = DbConn
+End Function
+
+'''' =====     Tracking the number of non-default instances.    ===== ''''
+'''' ===== (this./Property )InstanceCount and Instance(Add/Del) ===== ''''
+''''@ClassMethod
 Public Property Get InstanceCount() As Long
     If Me Is DbManager Then
         InstanceCount = this.InstanceCount
@@ -80,6 +91,7 @@ Public Property Get InstanceCount() As Long
     End If
 End Property
 
+''''@ClassMethod
 Public Property Let InstanceCount(ByVal Value As Long)
     If Me Is DbManager Then
         this.InstanceCount = Value
@@ -88,6 +100,7 @@ Public Property Let InstanceCount(ByVal Value As Long)
     End If
 End Property
 
+''''@ClassMethod
 Public Sub InstanceAdd()
     If Me Is DbManager Then
         this.InstanceCount = this.InstanceCount + 1
@@ -96,6 +109,7 @@ Public Sub InstanceAdd()
     End If
 End Sub
 
+''''@ClassMethod
 Public Sub InstanceDel()
     If Me Is DbManager Then
         this.InstanceCount = this.InstanceCount - 1
@@ -110,9 +124,4 @@ Public Sub InstanceDel()
     End If
 End Sub
 
-Public Function CreateConnection(ByVal DbConnStr As String) As DbConnection
-    Dim DbConn As DbConnection
-    Set DbConn = DbConnection.Create(DbConnStr)
-    Set this.Connections(DbConnStr) = DbConn
-    Set CreateConnection = DbConn
-End Function
+'''' -----     Tracking the number of non-default instances.    ----- ''''

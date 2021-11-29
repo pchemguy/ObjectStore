@@ -24,7 +24,9 @@ End Type
 Private this As TDbStatement
 
 
+'@DefaultMember
 Public Function Create(ByVal DbConn As DbConnection, ByVal DbStmtID As String) As DbStatement
+Attribute Create.VB_UserMemId = 0
     Dim Instance As DbStatement
     Set Instance = New DbStatement
     Instance.Init DbConn, DbStmtID

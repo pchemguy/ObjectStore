@@ -22,7 +22,9 @@ End Type
 Private this As TDbConnection
 
 
+'@DefaultMember
 Public Function Create(ByVal DbConnStr As String) As DbConnection
+Attribute Create.VB_UserMemId = 0
     Dim Instance As DbConnection
     Set Instance = New DbConnection
     Instance.Init DbConnStr
