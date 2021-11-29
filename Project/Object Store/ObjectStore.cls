@@ -37,14 +37,6 @@ Friend Property Get Store() As Scripting.Dictionary
 End Property
 
 #If VBA7 Then
-Public Sub DelRef(ByVal Handle As LongPtr)
-#Else
-Public Sub DelRef(ByVal Handle As Long)
-#End If
-    If this.Store.Exists(Handle) Then this.Store.Remove Handle
-End Sub
-
-#If VBA7 Then
 Public Function SetRef(ByVal ObjRef As Object) As LongPtr
     Dim Handle As LongPtr
 #Else
@@ -69,3 +61,11 @@ Public Function GetRef(ByVal Handle As Long) As Object
         Set GetRef = Nothing
     End If
 End Function
+
+#If VBA7 Then
+Public Sub DelRef(ByVal Handle As LongPtr)
+#Else
+Public Sub DelRef(ByVal Handle As Long)
+#End If
+    If this.Store.Exists(Handle) Then this.Store.Remove Handle
+End Sub
