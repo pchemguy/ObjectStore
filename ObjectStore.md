@@ -1,17 +1,21 @@
 ---
 layout: default
 title: ObjectStore
-nav_order: 4
+nav_order: 5
 permalink: /objectstore
 ---
 
-The other alternative prevents the formation of circular references by introducing an additional ObjectStore class (located in the *Object Store* folder). This class wraps a dictionary and acts as a global object store, with object addresses being the dictionary keys. The amended class diagram is shown in [Fig. 1](#CircularReferenceResolved).
+### Dictionary map and public auto-assigned store instance
+
+ObjectStore essentially maintains an **ObjPtr&nbsp;&rarr;&nbsp;Obj** map in a wrapped dictionary. With ObjectStore employed, the child class (DbStatement) constructor saves the parent object (DbConnection) address instead of its reference while saving the latter to ObjectStore (see amended class diagram in [Fig. 1](#CircularReferenceResolved)).
 
 <a name="CircularReferenceResolved"></a>  
 <div align="center"><img src="https://github.com/pchemguy/ObjectStore/raw/develop/Assets/Diagrams/CircularReferenceResolved.svg" alt="Circular References Resolved" width="75%" /></div>
 <p align="center"><b>Fig. 1. Simplified database library class diagram with ObjectStore</b></p>  
 
-The important part is how ObjectStore is accessed. Accessing an ObjectStore instance via a regular reference would result in a three-node loop. Instead, a public ObjectStore variable, such as the predeclared instance, should be used. At the same time, the ObjectStore collection should be destroyed during termination to free the stored objects. The simplest way to achieve this goal is to destroy the ObjectStore variable itself. Unfortunately, setting the predeclared instance variable to Nothing is not supported and would crash the application. On the other hand, the similarly behaving auto-assigned variables can be destroyed by setting them to Nothing. Thus, a public auto-assigned variable ObjectStore named after the class (mimicking predeclared instances) is declared in the *ObjectStoreGlobals* regular module located in the same folder.
+The important part is how ObjectStore is accessed. Accessing an ObjectStore instance via a regular reference would result in a three-node loop. Instead, a public ObjectStore variable, such as the predeclared instance, should be used. At the same time, the ObjectStore collection should be destroyed during termination to free the stored objects. The simplest way to achieve this goal is to destroy the ObjectStore variable itself. Unfortunately, setting the predeclared instance variable to Nothing is not supported and would crash the application. On the other hand, the similarly behaving auto-assigned variables can be reset by setting them to Nothing. Thus, the *ObjectStoreGlobals* module (in the same folder) contains a declaration of a public auto-assigned variable ObjectStore named after the class, mimicking predeclared instances.
+
+### Child class adjustments
 
 The child object in a circular reference relationship often takes its parent reference via the factory and saves it via the constructor, for example:
 
@@ -37,7 +41,7 @@ Friend Sub Init(ByVal DbConn As DbConnection, ByVal DbStmtID As String)
 End Sub
 ```
 
-The ObjectStore class has three methods. SetRef() saves an object reference and returns its address, GetRef() retrieves a saved object reference, and DelRef() removes a saved object reference. When ObjectStore is used, the Child's factory signature and the Parent calling code remain the same. The Child code needs **four** changes:  
+The ObjectStore class has three methods. SetRef() saves an object reference and returns its address, GetRef() retrieves a saved object reference, and DelRef() removes a saved object reference. With the ObjectStore class employed, the Child's factory signature and the Parent calling code remain unchanged. The Child code needs **four** changes:  
 
 1) The private parent attribute type changes from parent class to pointer:
 
@@ -72,11 +76,13 @@ End Property
 
 4) Finally, any references to the `this.DbConn` parent class attribute must be replaced with the getter `DbConn`, possibly caching its value within the local procedural scope as necessary.
 
-Apart from the changes to child classes, the ObjectStore variable itself needs to be destroyed during the termination stage. DbManager class is naturally positioned to perform this task. However, because the ObjectStore variable is global and more than one DbManager instance may exist, ObjectStore should not be destroyed from DbManager.Class_Terminate(). Instead, we add code to make the default DbManager instance count the regular instances. Whenever count goes to zero, the **default** instance of DbManager sets ObjectStore to Nothing.
+### Instance counter and ObjectStore destruction
 
+Apart from the changes to child classes, the ObjectStore variable itself needs to be destroyed during the termination stage. DbManager class is naturally positioned to perform this task. However, because the ObjectStore variable is global and more than one DbManager instance may exist, ObjectStore should not be destroyed from DbManager.Class_Terminate(). Instead, the default DbManager instance counts existing regular instances. Whenever this count goes to zero, the **default** instance of DbManager sets ObjectStore to Nothing, destroying the wrapped dictionary object alone with all saved object references and freeing the stored objects.
+ 
 ---
 
-Running Main.Main() with `ReferenceLoopManagementMode = REF_LOOP_OBJECT_STORE` setting should produce output similar to this (events due to the dafault instance may or may not appear depending on current execution context):
+Running Main.Main() with `ReferenceLoopManagementMode = REF_LOOP_OBJECT_STORE` setting should produce output similar to this (events due to the default instance may or may not appear depending on current execution context):
 
 ```
 2021-11-27 03:19:39.682: DbManager   /Regular - Class_Initialize
@@ -89,4 +95,8 @@ Running Main.Main() with `ReferenceLoopManagementMode = REF_LOOP_OBJECT_STORE` s
 2021-11-27 03:19:39.680: DbStatement /Regular - Class_Terminate
 ```
 
-indicating that all objects are properly terminated, including the ObjectStore. Termination of the ObjectStore variable destroys all parent references, and destruction starts from the top. Specifically, once ObectStore and DbManager instances are destructed, DbConnection, the top affected class, can be destructed, as it no longer has a parent holding its reference. Destruction of the DbConnection instance clears its children collection freeing its children.
+indicating that all objects are properly terminated, including the ObjectStore. Termination of the ObjectStore variable destroys all parent references. Then object destruction proceeds starting from the top. Specifically, once ObectStore and DbManager instances are destroyed, DbConnection, the top affected class, can be destroyed, as it no longer has a parent holding its reference. Destruction of the DbConnection instance clears its children collection freeing its children.
+
+### Alternative implementation
+
+While resetting the ObjectStore object encapsulates its clean-up code, it is sufficient to reset the wrapped dictionary directly. In this case, the predeclared instance can also do the job. Further, the managing class, DbManager in this case, can absorb ObjectStore functionality.
