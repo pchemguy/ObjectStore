@@ -5,6 +5,8 @@ nav_order: 5
 permalink: /objectstore
 ---
 
+The ObjectStore class simulates weak references via a Dictionary-based registry ([Patterns of Enterprise Application Architecture][]) and scalar keys as object handles.
+
 ### Dictionary map and public auto-assigned store instance
 
 ObjectStore essentially maintains an **ObjPtr&nbsp;&rarr;&nbsp;Obj** map in a wrapped dictionary. With ObjectStore employed, the child class (DbStatement) constructor saves the parent object (DbConnection) address instead of its reference while saving the latter to ObjectStore (see amended class diagram in [Fig. 1](#CircularReferenceResolved)).
@@ -100,3 +102,8 @@ indicating that all objects are properly terminated, including the ObjectStore. 
 ### Alternative implementation
 
 While resetting the ObjectStore object encapsulates its clean-up code, it is sufficient to reset the wrapped dictionary directly. In this case, the predeclared instance can also do the job. Further, the managing class, DbManager in this case, can absorb ObjectStore functionality.
+
+
+<!-- References -->
+
+[Patterns of Enterprise Application Architecture]: https://books.google.com/books?id=FyWZt5DdvFkC
